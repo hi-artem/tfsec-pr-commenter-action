@@ -63,7 +63,6 @@ func main() {
 
 	var errMessages []string
 	var validCommentWritten bool
-	os.Exit(1000)
 	for _, result := range results {
 		result.Range.Filename = workingDir + strings.ReplaceAll(result.Range.Filename, workspacePath, "")
 		comment := generateErrorMessage(result)
