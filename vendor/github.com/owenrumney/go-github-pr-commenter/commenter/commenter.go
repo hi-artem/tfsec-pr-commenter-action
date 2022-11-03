@@ -153,7 +153,7 @@ func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment)
 }
 
 func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
-
+	fmt.Printf("[DEBUG] Running on filename %v: ", filename)
 	for _, file := range c.files {
 		fmt.Printf("File changed in PR %v: ", file.FileName)
 		if relevant := func(file *commitFileInfo) bool {
