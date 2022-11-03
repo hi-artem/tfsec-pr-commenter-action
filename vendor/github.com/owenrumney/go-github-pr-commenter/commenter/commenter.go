@@ -89,6 +89,7 @@ func loadPr(ghConnector *connector) ([]*commitFileInfo, []*existingComment, erro
 
 // WriteMultiLineComment writes a multiline review on a file in the github PR
 func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLine int) error {
+	fmt.Printf("TESTINGTESTING\n")
 
 	if !c.checkCommentRelevant(file, startLine) || !c.checkCommentRelevant(file, endLine) {
 		return newCommentNotValidError(file, startLine)
@@ -153,7 +154,6 @@ func (c *Commenter) writeCommentIfRequired(prComment *github.PullRequestComment)
 }
 
 func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
-	fmt.Printf("[DEBUG] Running on filename %v: ", filename)
 	for _, file := range c.files {
 		fmt.Printf("File changed in PR %v: ", file.FileName)
 		if relevant := func(file *commitFileInfo) bool {
