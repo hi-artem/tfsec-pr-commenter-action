@@ -16,6 +16,8 @@ type Commenter struct {
 	files            []*commitFileInfo
 }
 
+var FIRST_AVAILABLE_LINE = -1
+
 var (
 	patchRegex     = regexp.MustCompile(`^@@.*\d [\+\-](\d+),?(\d+)?.+?@@`)
 	commitRefRegex = regexp.MustCompile(".+ref=(.+)")
@@ -89,8 +91,6 @@ func loadPr(ghConnector *connector) ([]*commitFileInfo, []*existingComment, erro
 
 // WriteMultiLineComment writes a multiline review on a file in the github PR
 func (c *Commenter) WriteMultiLineComment(file, comment string, startLine, endLine int) error {
-	fmt.Printf("TESTINGTESTING\n")
-
 	if !c.checkCommentRelevant(file, startLine) || !c.checkCommentRelevant(file, endLine) {
 		return newCommentNotValidError(file, startLine)
 	}
@@ -159,7 +159,7 @@ func (c *Commenter) checkCommentRelevant(filename string, line int) bool {
 		if relevant := func(file *commitFileInfo) bool {
 			if file.FileName == filename && !file.isResolvable() {
 				fmt.Printf("issue at L%v, PR change between L%v and L%v... ", line, file.hunkStart, file.hunkEnd)
-				if line >= file.hunkStart && line <= file.hunkEnd {
+				if (line == FIRST_AVAILABLE_LINE) || (line >= file.hunkStart && line <= file.hunkEnd) {
 					fmt.Println("match")
 					return true
 				}
@@ -177,7 +177,7 @@ func (c *Commenter) getFileInfo(file string, line int) (*commitFileInfo, error) 
 
 	for _, info := range c.files {
 		if info.FileName == file && !info.isResolvable() {
-			if line >= info.hunkStart && line <= info.hunkEnd {
+			if (line == FIRST_AVAILABLE_LINE) || (line >= info.hunkStart && line <= info.hunkEnd) {
 				return info, nil
 			}
 		}
@@ -186,7 +186,9 @@ func (c *Commenter) getFileInfo(file string, line int) (*commitFileInfo, error) 
 }
 
 func buildComment(file, comment string, line int, info commitFileInfo) *github.PullRequestComment {
-
+	if line == FIRST_AVAILABLE_LINE {
+		line = info.hunkStart
+	}
 	return &github.PullRequestComment{
 		Line:     &line,
 		Path:     &file,
